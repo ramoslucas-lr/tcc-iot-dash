@@ -5,7 +5,14 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tcc-device-simulation", "tcc-device-simulation\tcc-device-simulation.csproj", "{7F53CC6E-6DDD-4479-85A6-E683991F0711}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTHubToTwins", "IoTHubToTwins\IoTHubToTwins.csproj", "{EE7F7F02-2F64-4B79-95E8-75F90E0E0213}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tcc-hub-to-twins-function", "IoTHubToTwins\tcc-hub-to-twins-function.csproj", "{EE7F7F02-2F64-4B79-95E8-75F90E0E0213}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "models", "models", "{871544EF-EB16-49D5-BF36-56B4EED7E845}"
+	ProjectSection(SolutionItems) = preProject
+		models\FullTwins.xlsx = models\FullTwins.xlsx
+		models\tcc-adt-treatment-equipment.json = models\tcc-adt-treatment-equipment.json
+		models\tcc-adt-treatment-room.json = models\tcc-adt-treatment-room.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
