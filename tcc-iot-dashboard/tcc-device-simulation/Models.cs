@@ -1,4 +1,7 @@
-﻿namespace tcc_device_simulation
+﻿using System;
+using System.Collections.Generic;
+
+namespace tcc_device_simulation
 {
     public class Simulation
     {
