@@ -1,0 +1,23 @@
+{
+  "@id": "dtmi:tcc:TreatmentRoom;1",
+  "@context": "dtmi:dtdl:context;2",
+  "@type": "Interface",
+  "displayName": "TreatmentRoom",
+  "contents": [
+    {
+      "@type": "Telemetry",
+      "name": "OnUse",
+      "schema": "boolean"
+    },
+    {
+      "@type": "Telemetry",
+      "name": "NumericIndicator",
+      "schema": "integer"
+    },
+    {
+      "@type": "Relationship",
+      "name": "containsEquipment",
+      "target": "dtmi:tcc:TreatmentEquipment;1"
+    }
+  ]
+}
