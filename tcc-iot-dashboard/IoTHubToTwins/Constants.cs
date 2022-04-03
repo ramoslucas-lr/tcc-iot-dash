@@ -12,7 +12,7 @@ namespace tcc_azure_functions
         public static readonly List<string> TreatmentEquipmentProperties = new List<string> { "OnUse", "NumericIndicator" };
         public static readonly List<string> TreatmentRoomProperties = new List<string> { "OnUse", "NumericIndicator" };
 
-        public static readonly List<string> Telemetries = new List<string> { "ONUSE", "NUMERICINDICATOR"};
+        public static readonly List<string> Telemetries = new List<string> { "" };
     }
 
     public enum DeviceType
