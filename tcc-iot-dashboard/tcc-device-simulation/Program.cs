@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Extensions.Configuration;
 
 namespace tcc_device_simulation
 {
@@ -57,26 +56,15 @@ namespace tcc_device_simulation
 
         private static void Setup()
         {
-            var builder = new ConfigurationBuilder().AddJsonFile($"appSettings.json", true, true);
-            var config = builder.Build();
-
-            var iotHubConnectionString = config["IoTHubConnectionString"];
-            var minutesToRunString = config["MinutesToRun"];
-
-            if (string.IsNullOrEmpty(iotHubConnectionString))
-            {
-                Console.WriteLine("");
-                Console.WriteLine("Insira a ConnectionString do IoTHub:");
-                iotHubConnectionString = Console.ReadLine();
-            }
-
-            if (string.IsNullOrEmpty(minutesToRunString))
-            {
-                Console.WriteLine("");
-                Console.WriteLine("Insira o tempo em minutos da simulação:");
-                minutesToRunString = Console.ReadLine();
-            }
-
+            
+            Console.WriteLine("");
+            Console.WriteLine("Insira a ConnectionString do IoTHub:");
+            var iotHubConnectionString = Console.ReadLine();
+            
+            Console.WriteLine("");
+            Console.WriteLine("Insira o tempo em minutos da simulação:");
+            var minutesToRunString = Console.ReadLine();
+            
             var iotHubConnectionService = new IoTHubConnectionService(iotHubConnectionString);
             _simulationTask = new SimulationTask(_simulationOptions, iotHubConnectionService, Int32.Parse(minutesToRunString));
         }
