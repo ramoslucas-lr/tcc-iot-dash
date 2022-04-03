@@ -5,12 +5,12 @@
   "displayName": "TreatmentEquipment",
   "contents": [
     {
-      "@type": "Telemetry",
+      "@type": "Property",
       "name": "OnUse",
       "schema": "boolean"
     },
     {
-      "@type": "Telemetry",
+      "@type": "Property",
       "name": "NumericIndicator",
       "schema": "integer"
     }
