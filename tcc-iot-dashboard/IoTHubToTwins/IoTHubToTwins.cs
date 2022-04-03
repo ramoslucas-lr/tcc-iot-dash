@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Azure.Core.Pipeline;
 using Azure.DigitalTwins.Core;
-using Azure.DigitalTwins.Core.Serialization;
+using Microsoft.Azure.Devices.Serialization;
 using Azure.Identity;
 using Microsoft.Azure.EventGrid.Models;
 using Microsoft.Azure.WebJobs;
@@ -12,6 +12,7 @@ using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Azure;
 
 namespace tcc_azure_functions
 {
@@ -71,14 +72,19 @@ namespace tcc_azure_functions
         private async Task UpdateDigitalTwinProperty(DigitalTwinsClient client, string deviceId, JToken body, string propertyName)
         {
             var propertyToken = body[propertyName];
-            if (propertyToken != null)
+            if (Constants.Telemetries.Contains(propertyName.ToUpper()))
             {
-                if (Constants.Telemetries.Contains(propertyName.ToUpper()))
-                {
-                    var data = new Dictionary<string, double>();
-                    data.Add(propertyName, propertyToken.Value<double>());
-                    await client.PublishTelemetryAsync(deviceId, null, JsonConvert.SerializeObject(data));
-                }
+                var data = new Dictionary<string, double>();
+                data.Add(propertyName, propertyToken.Value<double>());
+                await client.PublishTelemetryAsync(deviceId, null, JsonConvert.SerializeObject(data));
+            }
+            else
+            {
+                // Update twin using device property
+                var updateTwinData = new JsonPatchDocument();
+                var uou = new UpdateOperationsUtility();
+                updateTwinData.AppendReplace($"/{propertyName}", propertyToken.Value<double>());
+                await client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
             }
         }
     }
