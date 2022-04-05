@@ -25,67 +25,43 @@ namespace tcc_azure_functions
 
         public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent, ILogger log)
         {
-            if (adtInstanceUrl == null) log.LogError("\"ADT_SERVICE_URL\" não configurada");
+            if (adtInstanceUrl == null) log.LogError("Application setting \"ADT_SERVICE_URL\" not set");
 
             try
             {
+                // Authenticate with Digital Twins
+                var cred = new ManagedIdentityCredential("https://digitaltwins.azure.net");
+                var client = new DigitalTwinsClient(
+                    new Uri(adtInstanceUrl),
+                    cred,
+                    new DigitalTwinsClientOptions { Transport = new HttpClientTransport(httpClient) });
+                log.LogInformation($"ADT service client connection created.");
+
                 if (eventGridEvent != null && eventGridEvent.Data != null)
                 {
-                    ManagedIdentityCredential cred = new ManagedIdentityCredential("https://digitaltwins.azure.net");
-                    DigitalTwinsClient client = new DigitalTwinsClient(new Uri(adtInstanceUrl), cred, new DigitalTwinsClientOptions { Transport = new HttpClientTransport(httpClient) });
                     log.LogInformation(eventGridEvent.Data.ToString());
 
+                    // <Find_device_ID_and_temperature>
                     JObject deviceMessage = (JObject)JsonConvert.DeserializeObject(eventGridEvent.Data.ToString());
                     string deviceId = (string)deviceMessage["systemProperties"]["iothub-connection-device-id"];
-                    var deviceType = Utils.GetDeviceType(deviceId);
-                    var body = deviceMessage["body"];
+                    var temperature = deviceMessage["body"]["OnUse"];
+                    // </Find_device_ID_and_temperature>
 
-                    switch (deviceType)
-                    {
-                        case DeviceType.TreatmentRoom:
-                            await UpdateDigitalTwinProperty(client, deviceId, body, Constants.TreatmentRoomProperties);
-                            break;
-                        case DeviceType.TreatmentEquipment:
-                            await UpdateDigitalTwinProperty(client, deviceId, body, Constants.TreatmentEquipmentProperties);
-                            break;
-                        default:
-                            log.LogInformation("Unknown device type.");
-                            break;
-                    }
-                    log.LogInformation($"DigitalTwinUpdated");
+                    log.LogInformation($"Device:{deviceId} OnUse is:{temperature}");
+
+                    // <Update_twin_with_device_temperature>
+                    var updateTwinData = new JsonPatchDocument();
+                    updateTwinData.AppendReplace("/OnUse", temperature.Value<double>());
+                    await client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
+                    // </Update_twin_with_device_temperature>
                 }
             }
             catch (Exception ex)
             {
-                log.LogError(ex, $"Error in ingest function: {ex.Message}");
+                log.LogError($"Error in ingest function: {ex.Message}");
             }
+
         }
 
-        private async Task UpdateDigitalTwinProperty(DigitalTwinsClient client, string deviceId, JToken body, List<string> properties)
-        {
-            foreach (var property in properties)
-            {
-                await UpdateDigitalTwinProperty(client, deviceId, body, property);
-            }
-        }
-
-        private async Task UpdateDigitalTwinProperty(DigitalTwinsClient client, string deviceId, JToken body, string propertyName)
-        {
-            var propertyToken = body[propertyName];
-            if (Constants.Telemetries.Contains(propertyName.ToUpper()))
-            {
-                var data = new Dictionary<string, double>();
-                data.Add(propertyName, propertyToken.Value<double>());
-                await client.PublishTelemetryAsync(deviceId, null, JsonConvert.SerializeObject(data));
-            }
-            else
-            {
-                // Update twin using device property
-                var updateTwinData = new JsonPatchDocument();
-                var uou = new UpdateOperationsUtility();
-                updateTwinData.AppendReplace($"/{propertyName}", propertyToken.Value<double>());
-                await client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
-            }
-        }
     }
 }
